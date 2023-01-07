@@ -6,19 +6,20 @@ import (
 	"time"
 )
 
+const num int = 10
+
 func producer(c chan<- int) {
 	var i int = 1
-	for {
+	for i <= num {
 		time.Sleep(2 * time.Second)
-		if len(c) < cap(c) {
-			ok := trySend(c, i)
-			if ok {
-				fmt.Printf("[producer]: send [%d] to channel\n", i)
-				i++
-				continue
-			}
+		ok := trySend(c, i)
+		if ok {
+			fmt.Printf("[producer]: send [%d] to channel\n", i)
+			i++
+			continue
 		}
 		fmt.Printf("[producer]: try send [%d], but channel is full\n", i)
+		close(c)
 	}
 }
 
@@ -42,18 +43,17 @@ func tryRecv(c <-chan int) (int, bool) {
 
 func comsumer(c <-chan int) {
 	for {
-		if len(c) > 0 {
-			i, ok := tryRecv(c)
-			if !ok {
-				fmt.Printf("[producer]: try send [%d], but channel is full\n", i)
-				time.Sleep(1 * time.Second)
-				continue
-			}
-			fmt.Printf("[consumer]: recv [%d] from channel\n", i)
-			if i >= 3 {
-				fmt.Println("[consumer]: exit")
-				return
-			}
+
+		i, ok := tryRecv(c)
+		if !ok {
+			fmt.Printf("[producer]: try send [%d], but channel is full\n", i)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		fmt.Printf("[consumer]: recv [%d] from channel\n", i)
+		if i >= num {
+			fmt.Println("[consumer]: exit")
+			return
 		}
 
 	}
@@ -61,7 +61,7 @@ func comsumer(c <-chan int) {
 
 func main() {
 	var wg sync.WaitGroup
-	c := make(chan int, 3)
+	c := make(chan int, num)
 	wg.Add(2)
 	go func() {
 		producer(c)
