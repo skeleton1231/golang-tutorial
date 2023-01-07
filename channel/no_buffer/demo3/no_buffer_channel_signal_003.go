@@ -44,7 +44,7 @@ func main() {
 	c := spawnGroup(worker, 5, groupSignal)
 	time.Sleep(5 * time.Second)
 	fmt.Println("the group of workers start to work...")
-	close(groupSignal)
+	close(groupSignal) //main goroutine 通过close(groupSignal)向所有 worker goroutine 广播“开始工作”的信号，收到 groupSignal 后，所有 worker goroutine 会“同时”开始工作
 	<-c
 	fmt.Println("the group of workers work done!")
 }
