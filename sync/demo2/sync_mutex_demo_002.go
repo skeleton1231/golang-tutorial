@@ -11,6 +11,7 @@ func main() {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	i := 0
+	wg.Add(1)
 	go func(mu *sync.Mutex) {
 		mu.Lock()
 		i = 10
@@ -21,10 +22,10 @@ func main() {
 	}(&mu)
 
 	time.Sleep(time.Second)
-	//mu.Lock()
-
-	fmt.Printf("g1: i = %d\n", i)
-	//mu.Unlock()
-
+	mu.Lock()
+	i = 1
+	fmt.Printf("g0: i = %d\n", i)
+	mu.Unlock()
 	wg.Wait()
+
 }
