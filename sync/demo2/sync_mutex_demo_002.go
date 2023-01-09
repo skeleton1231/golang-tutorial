@@ -12,6 +12,13 @@ func main() {
 	var mu sync.Mutex
 	i := 0
 	wg.Add(1)
+
+	/*
+		一旦某个 Goroutine 调用的 Mutex 执行 Lock 操作成功，它将成功持有这把互斥锁。
+		这个时候，如果有其他 Goroutine 执行 Lock 操作，
+		就会阻塞在这把互斥锁上，直到持有这把锁的 Goroutine 调用 Unlock 释放掉这把锁后，
+		才会抢到这把锁的持有权并进入临界区
+	*/
 	go func(mu *sync.Mutex) {
 		mu.Lock()
 		i = 10
